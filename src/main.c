@@ -4,6 +4,8 @@
 #include <allegro5/allegro_image.h>
 
 #define bitmap ALLEGRO_BITMAP*
+#define PI 3.14159265358979323846
+#define DEG_TO_RAD(a) ((a) * ((PI) / (180)))
 
 typedef struct stack
 {
@@ -48,7 +50,8 @@ int main(void)
     bool space = false;
     bool left = false;
     bool right = false;
-    bool e = false;
+    bool up = false;
+    bool down = false;
     float t = 0.0f;
     al_start_timer(timer);
     while (running)
@@ -64,7 +67,8 @@ int main(void)
             if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) { space = true; }
             if (event.keyboard.keycode == ALLEGRO_KEY_RIGHT) { right = true; }
             if (event.keyboard.keycode == ALLEGRO_KEY_LEFT) { left = true; }
-            if (event.keyboard.keycode == ALLEGRO_KEY_E ) { e = true; }
+            if (event.keyboard.keycode == ALLEGRO_KEY_UP ) { up = true; }
+            if (event.keyboard.keycode == ALLEGRO_KEY_DOWN ) { down = true; }
         }
 
         if (event.type == ALLEGRO_EVENT_KEY_UP)
@@ -72,7 +76,8 @@ int main(void)
             if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) { space = false; }
             if (event.keyboard.keycode == ALLEGRO_KEY_RIGHT) { right = false; }
             if (event.keyboard.keycode == ALLEGRO_KEY_LEFT) { left = false; }
-            if (event.keyboard.keycode == ALLEGRO_KEY_E ) { e = false; }
+            if (event.keyboard.keycode == ALLEGRO_KEY_UP ) { up = false; }
+            if (event.keyboard.keycode == ALLEGRO_KEY_DOWN ) { down = false; }
         }
 
         if (event.type == ALLEGRO_EVENT_TIMER)
@@ -81,7 +86,15 @@ int main(void)
             if (space) { t = t == 10.0f ? 0.0f : t + 0.01f; }
             if (left) { testStack.angle -= 0.05f; }
             if (right) { testStack.angle += 0.05f; }
-            if (e) { testStack.x += 3 * (cos(testStack.x)); testStack.y += 3 * (cos(testStack.y)); }
+            if (up)
+            { 
+                testStack.x += 3 * (cos(DEG_TO_RAD(testStack.angle)));
+                testStack.y += 3 * (cos(DEG_TO_RAD(testStack.angle)));
+            } if (down)
+            { 
+                testStack.x += -3 * (cos(DEG_TO_RAD(testStack.angle)));
+                testStack.y += -3 * (cos(DEG_TO_RAD(testStack.angle)));
+            }
 
             // Render
             al_clear_to_color(al_map_rgb(192, 192, 255));
