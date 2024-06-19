@@ -5,7 +5,6 @@
 
 #define bitmap ALLEGRO_BITMAP*
 #define PI 3.14159265358979323846
-#define DEG_TO_RAD(a) ((a) * ((PI) / (180)))
 
 typedef struct stack
 {
@@ -15,10 +14,12 @@ typedef struct stack
     uint8_t height;
     bitmap images[16];
     uint8_t spacing;
-    float angle;
+    double angle;
 } stack;
 
 void draw_stack(stack s, float t);
+double deg_to_rad(double a);
+double rad_to_deg(double a);
 
 int main(void)
 {
@@ -37,22 +38,23 @@ int main(void)
 
     stack testStack = (stack)
     {
-        .x = 400, .y = 400, .width = 16, .height = 16, .images = {}, .spacing = 3, .angle = 0.0f
+        .x = 400, .y = 400, .width = 16, .height = 16, .images = {}, .spacing = 3, .angle = 0.0
     };
 
-    bitmap spritesheet = al_load_bitmap("./res/car.png");
+    bitmap spritesheet = al_load_bitmap("./res/arrow.png");
     for (size_t i = 0; i < 16; i++)
     {
         testStack.images[i] = al_create_sub_bitmap(spritesheet, i * 16, 0, 16, 16);
     }
     
-    bool running = true;
     bool space = false;
     bool left = false;
     bool right = false;
     bool up = false;
     bool down = false;
     float t = 0.0f;
+    
+    bool running = true;
     al_start_timer(timer);
     while (running)
     {
@@ -84,22 +86,20 @@ int main(void)
         {
             // Update
             if (space) { t = t == 10.0f ? 0.0f : t + 0.01f; }
-            if (left) { testStack.angle -= 0.05f; }
-            if (right) { testStack.angle += 0.05f; }
+            if (left) { testStack.angle -= PI; }
+            if (right) { testStack.angle += PI; }
             if (up)
-            { 
-                testStack.x += 3 * (cos(DEG_TO_RAD(testStack.angle)));
-                testStack.y += 3 * (cos(DEG_TO_RAD(testStack.angle)));
-            } if (down)
-            { 
-                testStack.x += -3 * (cos(DEG_TO_RAD(testStack.angle)));
-                testStack.y += -3 * (cos(DEG_TO_RAD(testStack.angle)));
+            {
+                testStack.x += cos(rad_to_deg(testStack.angle)) * 3;
+                testStack.y += sin(rad_to_deg(testStack.angle)) * 3;
             }
 
             // Render
             al_clear_to_color(al_map_rgb(192, 192, 255));
             draw_stack(testStack, t);
             al_flip_display();
+
+            printf("ANGLE: %d\n", rad_to_deg(testStack.angle));
         }
     }
     al_stop_timer(timer);
@@ -117,8 +117,22 @@ void draw_stack(stack s, float t)
 {
     for (size_t i = 0; i < sizeof(s.images) / sizeof(s.images[0]); i++)
     {
+        // al_draw_scaled_rotated_bitmap(s.images[i], s.width / 2, 
+        //     s.height / 2, s.x, s.y + (((2.5f * sin(5.0f * t)) - 3.5f) * i * s.spacing), 6, 6, 
+        //     s.angle, 0);
+
         al_draw_scaled_rotated_bitmap(s.images[i], s.width / 2, 
-            s.height / 2, s.x, s.y + (((2.5f * sin(5.0f * t)) - 3.5f) * i * s.spacing), 6, 6, 
+            s.height / 2, s.x, s.y - (i * s.spacing), 6, 6, 
             s.angle, 0);
     }
+}
+
+double deg_to_rad(double a)
+{
+    return a * (PI / 180);
+}
+
+double rad_to_deg(double a)
+{
+    return a * (180 / PI);
 }

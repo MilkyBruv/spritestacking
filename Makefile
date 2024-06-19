@@ -1,3 +1,3 @@
 run:
-	clang src/main.c -o main -lallegro -lallegro_image -lm
-	./main
+	gcc src/main.c -o ./main.exe -lallegro -lallegro_image -lm
+	./main.exe
